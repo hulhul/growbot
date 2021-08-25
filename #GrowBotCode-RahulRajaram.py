@@ -13,25 +13,16 @@ Motor2E = 25
 Motor3A = 24
 Motor3B = 23
 Motor3E = 25
-Motor4A = 24
-Motor4B = 23
-Motor4E = 25
+
+
+stemClassifier = cv2.CascadeClassifier("")
+nodeClassifier = cv2.CascadeClassifier("")
+clawClassifier = cv2.CascadeClassifier("")
+
  
 def setup():
-	GPIO.setmode(GPIO.BCM)				# GPIO Numbering
-	GPIO.setup(Motor1A,GPIO.OUT)  # All pins as Outputs
-	GPIO.setup(Motor1B,GPIO.OUT)
-	GPIO.setup(Motor1E,GPIO.OUT)
-    GPIO.setup(Motor2A, GPIO.OUT)
-    GPIO.setup(Motor2B, GPIO.OUT)
-    GPIO.setup(Motor2E, GPIO.OUT)
-    GPIO.setup(Motor3A, GPIO.OUT) 
-    GPIO.setup(Motor3B, GPIO.OUT)
-    GPIO.setup(Motor3E, GPIO.OUT)
-    GPIO.setup(Motor4A, GPIO.OUT)
-    GPIO.setup(Motor4B, GPIO.OUT)
-    GPIO.setup(Motor4E, GPIO.OUT)
-
+	pass
+	
 
 
 
@@ -42,18 +33,47 @@ def loop():
 	GPIO.output(Motor1E + Motor2E,GPIO.HIGH)
  
 	sleep(5)
-    GPIO.output(Motor3A,GPIO.HIGH)
+	GPIO.output(Motor3A,GPIO.HIGH)
 	GPIO.output(Motor3B,GPIO.LOW)
 	GPIO.output(Motor3E,GPIO.HIGH)
 
-    sleep(5)
-    GPIO.output(Motor4A,GPIO.HIGH)
-	GPIO.output(Motor4B,GPIO.LOW)
-	GPIO.output(Motor4E,GPIO.HIGH)
     
+	cam = cv2.VideoCapture(0)
+	ret, img = cam.read()
+	count = 0
+	count1 = 0 
+	clawThere = False
+	stems = stemClassifier.detectMultiScale(img, 1.3, 5)
+	nodes = nodeClassifier.detectMultiScale(img)
+	for (x,y,w,h) in nodes:
+		count+=1
+	if(count>0):
+		GPIO.output(Motor1E + Motor2E + Motor3E, GPIO.LOW)
+		GPIO.output(Motor3A,GPIO.HIGH)
+		GPIO.output(Motor3B,GPIO.LOW)
+		GPIO.output(Motor3E,GPIO.HIGH)
+		claw = clawClassifier.detectMultiScale(img)
+		for (x, y, w, h) in claw:
+			clawThere = True
+		nodes1 = nodeClassifier.detectMultiscale(img)
+		for (x, y, w, h) in nodes1:
+			count1 +=1
+		if(count - count1 == 1 and clawThere):
+			GPIO.output(Motor3E, GPIO.LOW)
+			GPIO.output
+			servoPIN.start(50)
+			sleep(5)
+			servoPIN.stop()
+		GPIO.output(Motor3A,GPIO.LOW)
+		GPIO.output(Motor3B,GPIO.HIGH)
+		GPIO.output(Motor3E,GPIO.HIGH)
+	
+
+	
+
     
 	# Stop
-	GPIO.output(Motor1E + Motor2E + Motor3E + Motor4E,GPIO.LOW)
+	GPIO.output(Motor1E + Motor2E + Motor3E, GPIO.LOW)
 
 
 def destroy():	
@@ -62,7 +82,19 @@ def destroy():
 
 if __name__ == '__main__':     # Program start from here
 	setup()
-	try:
-    		loop()
-  	except KeyboardInterrupt:
-		destroy()
+	GPIO.setmode(GPIO.BCM)				# GPIO Numbering
+	GPIO.setup(Motor1A,GPIO.OUT)  # All pins as Outputs
+	GPIO.setup(Motor1B,GPIO.OUT)
+	GPIO.setup(Motor1E,GPIO.OUT)
+	GPIO.setup(Motor2A, GPIO.OUT)
+	GPIO.setup(Motor2B, GPIO.OUT)
+	GPIO.setup(Motor2E, GPIO.OUT)
+	GPIO.setup(Motor3A, GPIO.OUT) 
+	GPIO.setup(Motor3B, GPIO.OUT)
+	GPIO.setup(Motor3E, GPIO.OUT)
+	servoPIN = 17
+	GPIO.setup(servoPIN, GPIO.OUT)
+	loop()
+	loop()
+	loop()
+	destroy()
