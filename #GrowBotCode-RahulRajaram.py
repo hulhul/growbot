@@ -13,12 +13,18 @@ Motor2E = 25
 Motor3A = 24
 Motor3B = 23
 Motor3E = 25
+GPIO.setup(14,GPIO.IN) #GPIO 14
 
 
 stemClassifier = cv2.CascadeClassifier("")
 nodeClassifier = cv2.CascadeClassifier("")
 clawClassifier = cv2.CascadeClassifier("")
 
+def irSensor():
+	if(IO.input(14)==True):
+		time.sleep(50)
+		if(IO.input(14)==False):
+			return True
  
 def setup():
 	pass
@@ -38,6 +44,7 @@ def loop():
 	GPIO.output(Motor3E,GPIO.HIGH)
 
     
+
 	cam = cv2.VideoCapture(0)
 	ret, img = cam.read()
 	count = 0
@@ -78,6 +85,7 @@ def loop():
 
 def destroy():	
 	GPIO.cleanup()
+
 
 
 if __name__ == '__main__':     # Program start from here
